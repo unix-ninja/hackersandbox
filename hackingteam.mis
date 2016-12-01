@@ -1,0 +1,231 @@
+-- Hacking Team mission pack
+-- Written by Unix-Ninja
+-- This is just a parody; Don't take it seriously!!
+-- MPVERS 1.0
+
+-- globals
+trophies = { poz_home = 0, fsv_hackteam = 0, fsv_clienti = 0, fsv_software = 0, git_opt = 0, wik_confluence = 0 }
+
+-- VMs
+local i
+
+--
+newVM ("pozzmaster")
+setProperty ({ ip = "192.168.1.100" })
+-- Joke number 1: let's match any password to c.pozzi's account
+addUser("c.pozzi","*")
+addFile ({ name = "/bin/wget", exec="f_wget", acl="777" })
+addFile ({ name = "/home/c.pozzi/omg-pornz.txt", content="http://www.youporn.com/watch/609239/nice-huge-tits-on-liana/\nhttp://www.youporn.com/watch/281652/sharing-paris/\nhttp://www.youporn.com/watch/5904/hamburger-pussy/\nhttp://www.youporn.com/watch/624363/perfect-rack-on-this-amateur-babe-scott-ward/\nhttp://www.youporn.com/watch/617507/tara-tainton-takes-a-huge-dick-deep-inside/\nhttp://www.youporn.com/watch/290803/horny-housewife-fucked-from-behind/\nhttp://www.youporn.com/watch/722745/pretty-daphne-fucking-hot-in-bed-creampied/\nhttp://www.youporn.com/watch/339744/abbey-brooks-twinkle-tits/\nhttp://www.youporn.com/watch/307207/very-hot-blonde-suck-big-cock/\nhttp://www.youporn.com/watch/410835/amateur-couch-fuck/\nhttp://www.youporn.com/watch/309873/boobs/\n" })
+addFile ({ name = "/home/c.pozzi/passwords.txt", content="telnet logins:\n \n UserName : c.pozzi\n Password : passw0rd\n Target   : 192.168.1.200\n \n UserName : c.pozzi\n Password : passw0rd\n Target   : 192.168.1.210\n \n UserName : c.pozzi\n Password : passw0rd\n Target   : 192.168.1.220\n \n" })
+mail ({ to="c.pozzi", from="Big Cheeze", subject="Team finFisher", body="Haha, finsiher got h4x0rd. What amateurs!! Can you believe them?\n\nThat will never happen to us!\n" })
+mail ({ to="c.pozzi", from="Dave", subject="Turkey", body="Turkey's getting careless. Time to let them go. They will come crawling back\nonce they see the light.\n" })
+mail ({ to="c.pozzi", from="Dave", subject="Ethiopia", body="More clients getting careless. Can you believe they are using the same email\nto register all of their C&Cs? I guess that's what you get with opressive\nclients. Let's suspend them!! rawr!\n" })
+mail ({ to="c.pozzi", from="Russ", subject="Exports", body="Let's hold a meeting next week about these export restrictions. Need to find a\nway to get around them.\n" })
+mail ({ to="c.pozzi", from="Peter", subject="Italian", body="Boppity Boopy?\n" })
+mail ({ to="c.pozzi", from="Ethiopia", subject="Urgent", body="Thnx guys! RCS helped us 2 reach a high value target! We r super h4x0rz! U the\nbest!\n" })
+
+--
+newVM ("fileserver")
+setProperty ({ ip = "192.168.1.200" })
+addService ({ port = "23", name = "telnetd", exec = "", start="true", poll="Login:" })
+addUser("c.pozzi","passw0rd")
+fsMax(256)
+addFile ({ name = "/bin/wget", exec="f_wget", acl="777" })
+
+addDir ({ name = "/home/shared/" })
+addDir ({ name = "/home/shared/HackingTeam/" })
+addFile ({ name = "/home/shared/HackingTeam/Assets.dat", content = garbage(168) })
+addFile ({ name = "/home/shared/HackingTeam/reports.xls", content = garbage(87) })
+addFile ({ name = "/home/shared/HackingTeam/Office.dat", content = garbage(300) })
+addFile ({ name = "/home/shared/HackingTeam/Exchange.db", content = garbage(1344) })
+
+addDir ({ name = "/home/shared/clienti/" })
+clients = { "Egypt", "Ethiopia", "Hungary", "Italy", "Kazakistan", "Malaysia", "Mexico", "Morocco", "Nigeria", "Russia", "Sudan", "Thailand", "Turkey", "UAE", "USA", "Vietnam" }
+for i=1, #clients do
+  addDir ({ name = "/home/shared/clienti/".. clients[i] .."/" })
+  addFile ({ name = "/home/shared/clienti/".. clients[i] .."/contract.doc", content = garbage(56) })
+  addFile ({ name = "/home/shared/clienti/".. clients[i] .."/secrets.doc", content = garbage(126) })
+  addFile ({ name = "/home/shared/clienti/".. clients[i] .."/pentest.doc", content = garbage(564) })
+  addFile ({ name = "/home/shared/clienti/".. clients[i] .."/reports.xls", content = garbage(99) })
+end
+
+addDir ({ name = "/home/shared/software/" })
+addFile ({ name = "/home/shared/software/Acrobat.msi", content = garbage(128) })
+addFile ({ name = "/home/shared/software/IDA_Pro.msi", content = garbage(98) })
+addFile ({ name = "/home/shared/software/Office.msi", content = garbage(374) })
+addFile ({ name = "/home/shared/software/PGP.msi", content = garbage(221) })
+addFile ({ name = "/home/shared/software/VPN.msi", content = garbage(104) })
+
+--
+newVM ("git")
+setProperty ({ ip = "192.168.1.210" })
+addService ({ port = "23", name = "telnetd", exec = "", start="true", poll="Login:" })
+addUser("c.pozzi","passw0rd")
+addFile ({ name = "/bin/wget", exec="f_wget", acl="777" })
+addDir ({ name = "/opt/" })
+ repos = { "android", "blackberry", "ios", "linux", "macos", "windows" }
+ for i=1, #repos do
+   addDir ({ name = "/opt/rcs-".. repos[i] ..".git/" })
+   local n
+   for n=1, math.random(10) do
+     addFile ({ name = "/opt/rcs-".. repos[i] ..".git/code".. n ..".c", content = garbage(i*100) })
+   end
+ end
+
+--
+newVM ("wiki")
+setProperty ({ ip = "192.168.1.220" })
+addService ({ port = "23", name = "telnetd", exec = "", start="true", poll="Login:" })
+addUser("c.pozzi","passw0rd")
+addFile ({ name = "/bin/wget", exec="f_wget", acl="777" })
+addDir ({ name = "/opt/" })
+addDir ({ name = "/opt/atlassian/" })
+addDir ({ name = "/opt/atlassian/confluence/" })
+addFile ({ name = "/opt/atlassian/confluence/wiki.dat", content = garbage(417) })
+addFile ({ name = "/opt/atlassian/confluence/users.dat", content = garbage(39) })
+addFile ({ name = "/opt/atlassian/confluence/ruby.dat", content = garbage(988) })
+
+-- functions
+function f_wget(arg)
+  if (#arg < 2) then
+    print "wget: missing URL"
+    print "usage: wget [URL]"
+    return
+  end
+  host = arg[2]
+  print ("Connecting to " .. host .. "... connected.")
+  if (host == "http://1337.com/tools/" or host == "http://1337.com/tools") then
+    path = cwd()
+    print ("Saving files to " .. path .. "...")
+    echo (" massftp: ")
+    for i = 1,5 do
+      echo (".")
+      sleep(1)
+    end
+    echo ("\n")
+    addFile ({ name = path.."massftp", content = garbage(1623).."\n", exec="f_ftp", acl="777" })
+    print ("done.")
+    return
+  end
+  print ("ERROR 404: Not Found.")
+end
+
+function f_ftp(arg)
+  if (#arg < 2) then
+    print "massftp: missing folder to upload"
+    print "usage: massftp [path-to-folder]"
+    return
+  end
+  path = arg[2]
+  if not isDir(path) then
+    print "Err: Unable to find target folder!"
+    return
+  end
+  if path == "/" then
+    print "Isn't that cheating? Try something a *little* more specific!"
+    return
+  end
+  print ("Uploading ".. path .." to ftp://1337.com/pwned/:")
+  local waittime = 60
+  local host = hostname()
+  if host == "pozzmaster" then
+    if string.sub(path,0,5) == "/home" then
+      waittime = 10
+      trophies["poz_home"] = 1
+    end
+  end
+  if host == "fileserver" then
+    if path == "/home" or path == "/home/" or path == "/home/shared" or path == "/home/shared/" then
+      waittime = 20
+      trophies["fsv_hackteam"] = 1
+      trophies["fsv_clienti"] = 1
+      trophies["fsv_software"] = 1
+    end
+    if string.sub(path,0,24) == "/home/shared/HackingTeam" then
+      waittime = 10
+      trophies["fsv_hackteam"] = 1
+    end
+    if string.sub(path,0,20) == "/home/shared/clienti" then
+      waittime = 10
+      trophies["fsv_clienti"] = 1
+    end
+    if string.sub(path,0,21) == "/home/shared/software" then
+      waittime = 10
+      trophies["fsv_software"] = 1
+    end
+  end
+  if host == "git" then
+    if string.sub(path,0,4) == "/opt" then
+      waittime = 10
+      trophies["git_opt"] = 1
+    end
+  end
+  if host == "wiki" then
+    if string.sub(path,0,4) == "/opt" then
+      waittime = 10
+      trophies["wik_confluence"] = 1
+    end
+  end
+  for i = 1,waittime do
+    echo (".")
+    sleep(1)
+  end
+  print "done."
+  if waittime < 60 then
+    print ("[score++]")
+  end
+  if all_trophies() then
+    ending()
+  end
+end
+
+function all_trophies()
+  for k,v in pairs(trophies) do
+    if v == 0 then
+      return false
+    end
+  end
+  return true
+end
+
+function intro()
+  if not _G["VERSION"] or VERSION < 1.15 then
+    print "You must use Hacker's Sandbox >= 1.15 to play this mission pack!"
+    quit()
+  end
+
+  print ""
+  print "It's been a long haul since you first got the call to investigate Hacking Team's"
+  print "involvement with selling surveillance technology to countries with dubious human"
+  print "rights records. But now, you can almost taste it."
+  print ""
+  print "Just recently, you managed to install a reverse shell on their system admin's"
+  print "machine. You know the username is c.pozzi, now you just have to hope you can"
+  print "luck-out and he has some ridiculous password for his acocunt. Wouldn't it be"
+  print "funny if his password was in the top 10 list? Hell, even a variation on one of"
+  print "those would be like Christmas!"
+  print ""
+  print "If you can manage to break in, the goal is simple: Use wget to download tools"
+  print "from http://1337.com/tools/, then ftp away any valuable data you can to"
+  print "ftp://1337.com/pwned/."
+  print ""
+  print "You take a deep breath and place your hands on the keyboard..."
+  print ""
+  pause()
+  print "--------------------------------------------------------------------------------"
+  print ""
+end
+
+function ending()
+  print ""
+  print "--------------------------------------------------------------------------------"
+  print ""
+  print "Yep, that's everything. Now you sit back and wonder to yourself: \"what should I"
+  print "do with all this data, and access to the Internet?...\""
+  print ""
+  print "You have won the game! Don't you feel good about yourself now?"
+  print ":)"
+  print ""
+  pause()
+  quit()
+end

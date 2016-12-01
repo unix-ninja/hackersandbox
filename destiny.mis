@@ -1,0 +1,553 @@
+-- Destiny mission pack
+-- Written by Unix-Ninja
+-- Based on the game 'Fate' by m101
+-- MPVERS 1.18
+
+-- globals
+trinity_logs = true
+zion_logs = true
+solara_logs = true
+morbid_logs = true
+honeypot_logs = true
+welcome_msg = true
+has_bruteforcer = false
+has_wwwlook = false
+
+-- load area6 VM
+newVM ("area6")
+setProperty ({ ip = "1.1.1.1" })
+setProperty ({ on_root = "f_area6_root", hint = "Find the root password hash and a program on the local system to crack it."  })
+addFile ({ name = "/home/m101/welcome", owner = "m101", content="Greetings, hacker!\n\nI am glad you accepted my offer. Your first mission is to gain root on this\nmachine and access the files in the /root directory. Once you have done this,\nI will be sending you messages with your following objectives, so remember to\ncheck your 'mail' application.\n\nA list of basic commands is available with 'help'.\n\nGood luck!\n(Your destiny has been decided...)\n\n~ A friend\n\n" })
+addFile ({ name = "/root/Area6", content="Congratulations on your hack. Before I give you a real mission, however, you\nwill have to complete a series of simple hacks on a few low security facilities.\nDon't worry, it should be a walk in the park for someone like you.\n\nYour next contact will be from an agent named Harper. He will provide you with\na few tools for your next hack. The target is located at 203.59.0.206. Gain root\non the next server, but DO NOT forget to clear the logs. More than your career\nis riding on this one.\n\n~A friend\n\n" })
+addFile ({ name = "/etc/passwd", content = "root:fwYGBn8+Pj5.Kysrfyoq:0:0:root:/root:/bin/sh\nm101:f0BAQHdiYmJ3cXFxd3Jy:100:100:m101:/home/m101:/bin/sh\ndalton:fxcFBX9xYWF.b29vf2xs:200:200:Dalton:/home/dalton:/bin/sh\n" })
+addFile ({ name = "/bin/nmap", content = garbage(415), exec="p_nmap" })
+addFile ({ name = "/etc/passed-pawn" })
+addFile ({ name = "/usr/hashcat", exec="p_hashcat", acl="777" })
+addUser ( "m101", "area6" )
+addUser ( "dalton", "lawnmower" )
+addUser ( "root", "gravity98" )
+addFile ({ name = "/bin/wget", exec="f_wget", acl="777" })
+addFile ({ name = "/bin/wwwlook", content = garbage(787), exec="f_wwwlook", acl="777" })
+mail ({ to="root@area6", from="Weasil", subject="power", body="Hey Harper, I setup that 2-GPU rig you were asking about.\nShould make hashcat nicer to use. You can use it on beefbox whenever you want.\nThe creds are the usual temp stuff.\n" })
+
+-- load beefbox VM
+newVM("beefbox")
+setProperty ({ ip = "41.213.108.114" })
+addService ({ port = "23", name = "telnetd", exec = "", start="true", poll="Login:" })
+addService ({ port = "21", name = "ftpd", exec = "", start="true", poll="G6 FTP Server Ready" })
+addUser ( "ftp", "gremlin117" )
+addUser ( "temp", "tempP@ss" )
+addGPU ( "Gremlin VGA Adapter", 5 )
+addGPU ( "Gremlin VGA Adapter", 5 )
+addFile ({ name = "/usr/hashcat", exec="p_hashcat", acl="777" })
+
+-- load trinity VM
+newVM ("trinity")
+setProperty ({ ip = "203.59.0.206", on_root="f_get_brute", hint = "Did you remove the logs?" })
+addService ({ port = "7", name = "echod", exec = "", start="true" })
+addService ({ port = "9", name = "discardd", exec = "", start="true" })
+addService ({ port = "13", name = "daytimed", exec = "", start="true" })
+addService ({ port = "21", name = "ftpd", exec = "", start="true", poll="G6 FTP Server Ready" })
+addService ({ port = "23", name = "telnetd", exec = "", start="true", poll="Login:" })
+addUser ( "frank", "" )
+addUser ( "ftp", "" )
+addFile ({ name = "/bin/wget", exec="f_wget", acl="777" })
+addFile ({ name = "/etc/passwd", content = "root:*:0:0:Charlie Root:/root:/bin/sh\nftp:*:100:100:ftp:/home/ftp:/bin/sh\nfrank:*:110:110:Frank Howard:/home/ftp:/bin/sh\n" })
+addFile ({ name = "/var/log/ftpd.log", on_delete="f_trinity_rm_logs" })
+
+mail ({ to="root", from="a friend", subject="Fate", body="Nice to see you're still with us, script kiddie. You haven't done anything\neven slightly impressive yet. In fact, we think you've already had too much\nhelp, so this next mission you are going to need to figure out root on your\nown.\n\nThis system will have low security, but as before, remember to erase the logs.\nThe target IP is 116.233.142.168. Break into it and gain root by any means\npossible. You might want to do your research a little before hacking in.\n\nGood Luck.\n\n~A friend\n" })
+
+-- load zion VM
+newVM ("zion")
+setProperty ({ ip = "116.233.142.168" , on_root="f_check_zion_logs", hint = "Sometimes programs do funky things when unexpected situations occur. Can you break the welcome program?" })
+addService ({ port = "13", name = "daytimed", exec = "", start="true" })
+addService ({ port = "21", name = "dftpd", exec = "", start="true", poll="Digital Tech FTP Server Ready" })
+addService ({ port = "23", name = "telnetd", exec = "", start="true", poll="Login:" })
+addUser ( "ftp", "janitor" )
+addUser ( "games", "" )
+addFile ({ name = "/var/log/ftpd.log", on_delete="f_zion_rm_logs", acl="666" })
+addFile ({ name = "/etc/passwd", content = "root:*:0:0:Charlie Root:/root:/bin/sh\nftp:*:100:100:ftp:/home/ftp:/bin/sh\ngames:*:100:100:ftp:/home/ftp:/bin/sh\n" })
+addFile ({ name = "/etc/welcome", content = garbage(229).."\n", exec = "f_welcome", acl="777", suid="true" })
+addFile ({ name = "/etc/welcome.msg", content = "Welcome to the Zion FTP and Game Server!\n\n\nAll attempts to gain unauthorized access are logged.\n\nThe Games:\n\n************\n*Battleship*\n************\nEach player places their ships on an 8x8 grid. Then,\nplayers take turns firing at the other player's ships. As the\nplayers can't see each other's screens, the screen is erased\nbetween turns and the player whose turn it is is notified on\nthe screen. The grid to the left allows players to see their\nopponent's progress.\n\nKeys:\nArrow Keys: move cursor\nEnter     : Fire/Place ship\nX,T,0     : Rotate a ship (when placing)\n\n**********\n*Warefare*\n**********\nThis game requires the players to enter speed and angle of\na tank's shell, the flight of which is then simulated. The\nwinner is the player who first hits their opponent's tank.\n\n***********\n*Earthworm*\n***********\nThis is the classic 'Snake' game. The player controls an\nearthworm which must move around without hitting blocks,\nitself, or walls, and which has a limited time to live. The time\ndecreases every time the worm moves, and increases when the worm\neats a pixel.\n\nKeys:\nArrow Keys: steer worm\nX         : exit the game\nS         : toggle sound (initially off)\n\n*************\n*MineSweeper*\n*************\nThis is the same game, suitably modified, as on Windows Computers.\nThe player moves a cursor around, and incovers squares. If a mine\nis uncovered, the game ends. Otherwise, the square will contain the\nnumber of mines in the adjacent eight squares. This allows the\nplayer to deduce the positions of the mines. Once a mine is known,\nit may be marked to prevent it being accidentally uncovered. If there\nare no mines in the surrounding squares, a square will be blank and\nthe squares around it are automatically uncovered (as they could not\npossibly be mines.) This can take a while. The bottom-right corner\ndisplays the number of quares remaining that do not conceal mines.\n\n20 mines is easy, 30 is reasonable.\nThe maximum ever scored, to the author's knowledge, is 55.\n\nKeys:\nArrow Keys        : move curosr\nShift + Arrow Keys: jump to the specified edge\nEnter             : uncover square\nK,T,0             : unmark a square\n\n*************\n*Master Mind*\n*************\nIn this game, the player must deduce a five character code.\nThe calculator is held by pressing the soft keys corresponding to\ndifferent symbols. Ever guess is scored with two numbers, printed to\nthe right of the guess. For example, a score of 1-2 means that of the\nsymbols in the guess, one character of the guess is the right symbol, in\nthe right place, and two characters in the guess are the right symbols\nin the wrong positions.\n\nKeys:\nLeft/Right : move cursor\nSoft keys  : put a symbol at the current position\nENTER      : submit a guess\n\n********\n*Oracle*\n********\nThink of a question! Think your question loud and firmly!\nRun the Oracle, and your calculator knows the answer!\n(DO NOT TAKE THIS SERIOUSLY)\n", acl="777", on_delete="f_rm_welcome_msg" })
+addFile ({ name = "/bin/wget", exec="f_wget", acl="777" })
+
+mail ({ to="ftp", from="a friend", subject="Just a nudge", body="I am feeling benevolent. If you get stuck, see if there are any programs with\nsetuid you can exploit. If you are lucky, the developers won't have put in\nproper error handeling when weird things happen.\n\n~A friend\n" })
+mail ({ to="root", from="a friend", subject="Next hop", body="Are you ready for the next challenge? You'd better figure out how to make some\ntime to breathe, because we won't give it to you.\n\nThe next target belongs to a small consulting firm. The sysadmin thinks he's a\nbadass, but I'm willing to bet he isn't even using a secure password for his\naccount. Hell, I wouldn't be surprised if it was one of the top 10 most common\npasswords. Anyway, his username is \"police\". (funny, right?). You will find the\ntarget at 92.13.211.4. Have fun...\n\n~A friend\n" })
+
+-- load sentinel VM
+newVM ("sentinel")
+setProperty ({ ip = "92.13.211.4", on_root = "f_get_brute", hint = "Maybe we can find some clues inside the files on the filesystem."  })
+addNetDomain("kali-net")
+addUser ( "police", "123456" )
+addUser ( "ftp", "pencil" )
+addUser ( "root", "T0ps3cr3t" )
+addService ({ port = "23", name = "telnetd", exec = "", start="true", poll="Login:" })
+addDir ({ name = "/proc/" })
+addDir ({ name = "/proc/113/" })
+addDir ({ name = "/tmp" })
+addFile ({ name = "/tmp/check_status.sh", content = "#!/bin/sh\n\nspawn su -\nexpect \"Password:\" { send \"T0ps3cr3t\\n\" }\nexpect \"# \" { send \"cat /proc/113/status\\n\" }\nexit\n" })
+addFile ({ name = "/proc/113/status", content = "Name:   srvmon\nState:  R (running)\nTgid:   5452\nPid:    5452\nPPid:   743\nTracerPid:      0                              (2.4)\nUid:    501     501     501     501\nGid:    100     100     100     100\nFDSize: 256\nGroups: 100 14 16\nVmPeak:     5004 kB\nVmSize:     5004 kB\nVmLck:         0 kB\nVmHWM:       476 kB\nVmRSS:       476 kB\nVmData:      156 kB\nVmStk:        88 kB\nVmExe:        68 kB\nVmLib:      1412 kB\nVmPTE:        20 kb\nVmSwap:        0 kB\nThreads:        1\nSigQ:   0/28578\nSigPnd: 0000000000000000\nShdPnd: 0000000000000000\nSigBlk: 0000000000000000\nSigIgn: 0000000000000000\nSigCgt: 0000000000000000\nCapInh: 00000000fffffeff\nCapPrm: 0000000000000000\nCapEff: 0000000000000000\nCapBnd: ffffffffffffffff\nSeccomp:        0\nvoluntary_ctxt_switches:        0\nnonvoluntary_ctxt_switches:     1\n" })
+addFile ({ name = "/etc/passwd", content = "root:*:0:0:Charlie Root:/root:/bin/sh\nftp:*:100:100:ftp:/home/ftp:/bin/sh\npolice:*:500:500:Gary Thomas:/home/police:/bin/sh\n" })
+addFile ({ name = "/var/log/syslog", content = "srvmon: Critical system error! Please restart service.\nsrvmon: status code: 241H\nsrvmon: status code: 188H\nsrvmon: status code: 236B\nlogger: System rebooted for hard disk upgrade\n" })
+addFile ({ name = "/bin/wget", exec="f_wget", acl="777" })
+mail ({ to="root", from="a friend", subject="pwned!", body="Hah! Good one! That looser had it coming to him. Let's move to the next hack\nquickly. Your next target can be found at 118.101.16.199. I think good things\nare in your destiny.\n\n~A friend\n" })
+
+-- load solara VM
+newVM ("solara")
+setProperty ({ ip = "118.101.16.199", on_root = "f_check_solara_logs", hint = "Find a program on the local filesystem to help steal passwords."  })
+addUser("ben", "")
+addUser ( "eliott", "dragon77" )
+addUser ( "ftp", "cowboy" )
+addUser ( "root", "cs6Xk-11b" )
+addService ({ port = "21", name = "superftpd", exec = "", start="true", poll="Super FTP Server Ready" })
+addService ({ port = "23", name = "telnetd", exec = "", start="true", poll="Login:" })
+addFile ({ name = "/bin/ipsniff", exec="f_ipsniff", acl="755" })
+addFile ({ name = "/bin/wget", exec="f_wget", acl="777" })
+addFile ({ name = "/var/log/ftpd.log", on_delete="f_solara_rm_logs", acl="666" })
+mail ({ to="root", from="a friend", subject="2f challenge", body="You might have some potential kid... maybe. There's still a lot more to go, so\ndon't get full of yourself just yet. Besides, not all of us are impressed.\n\nYou want to earn some real cred? There's a certain box that's been pissing off\nr0shi for a while. If you can pwn the box, it would look pretty damned good for\nyou. Fortunately for you, some of the heavy lifting has already been done. The\nbox is located at 22.13.107.145. The account 'brian' has already been\ncompromised. swing1999. Once you're in there, you are going to be on your own.\nThe root account is protected with two-factor auth. Let's see how you do...\n\n~A friend\n" })
+
+-- load ironman VM
+newVM("ironman")
+setProperty ({ ip = "22.13.107.145", on_login = "f_2factor_auth", hint = "You may want to write a script to help you get past this mission. You will need a way to create tokens." })
+addUser ( "root", "toor" )
+addUser("brian", "swing1999")
+addUser("ftp", "")
+addUser("lee", "")
+addUser("tom", "")
+addService ({ port = "23", name = "telnetd", exec = "", start="true", poll="Login:" })
+addDir ({ name = "/usr/share/" })
+addDir ({ name = "/usr/share/src/" })
+addFile ({ name = "/usr/share/src/token_gen.c", content="/* Token Generator */\n/* Since the admin doesnt want to change his password from 'toor', I made this\n to help secure the box. Now, root will need tokens to log in. */\n\n#include <stdio.h>\n#include <time.h>\n#include <md5.h>\n\nint main(void)\n{\n    int seed = time(NULL);\n    seed >>= 6;\n    char[32] hash = hex(md5(seed));\n    char[8] token = substr(hash,0,6);\n    printf (\"%s\\n\", token);\n    return 0;\n}\n" })
+addFile ({ name = "/bin/wget", exec="f_wget", acl="777" })
+addFile ({ name = "/etc/passwd", content = "root:*:0:0:Charlie Root:/root:/bin/sh\nftp:*:100:100:ftp:/home/ftp:/bin/sh\nbrian:*:500:500:Brian Wright:/home/brian:/bin/sh\ntom:*:501:501:Tom Higgin:/home/tom:/bin/sh\nlee:*:502:502:Lee Farone:/home/lee:/bin/sh\n" })
+addFile ({ name = "/root/Target", content = "Congratulations on another hack. I hope you have learned little from that weak\nattempt. As Dead_Beat said, this is near the end, before the real missions\nstart. I hope you last that long...\n\nYou are going to be taking over for our last recruit. Let's just say, he\nhas some pressing engagements and couldn't finish the task. There is a\nprogram located in /usr/db. Although the programmers are still\ndeveloping it, it has suid for root. If you can overflow the buffer on\nthis program, you should be able to gain root access.\n\njummyj was kind enough to leave behind a unicode sender so you can send any\ncharacters you like to the program's input. Apparently, the source code for\nthe program has been left there, so you may want to make use of it.\nThe target's ip is 44.236.143.86\n\nGood Luck...\n\n~A friend\n" })
+mail ({ to="root", from="Dead_Beat", subject="Near the End", body="I hear you have been asking around, trying to find out who we are. If I were\nyou, I wouldn't be concerned with that. It's not important who we are or what\nwe stand for. So get back to your work!\n\nYour next mission has been assigned. The target is a machine that was already\nhacked by one of our other memebrs, but so far we haven't gotten root.\nAll the neccesary files you will need are already on the machine.\nThis is almost your last challenge before anything real. Don't mess this up.\n" })
+
+-- load morbid VM
+newVM ("morbid")
+setProperty ({ ip = "44.236.143.86", on_root = "f_get_wwwlook", uname = "VNX Kernel 0.1: Tue Dec 22 11:34 EST 2010; amd64", hint = "For a primer on buffer overflows: http://www.unix-ninja.com/p/A_Foundation_for_Buffer_Overflow_Attacks/"  })
+addUser ( "ftp", "monkey" )
+addService ({ port = "7", name = "echod", exec = "", start="true" })
+addService ({ port = "21", name = "superftpd", exec = "", start="true", poll="Super FTP Server Ready" })
+addService ({ port = "23", name = "telnetd", exec = "", start="true", poll="Login:" })
+addFile ({ name = "/etc/passwd", content = "root:*:0:0:Charlie Root:/root:/bin/sh\nftp:*:100:100:ftp:/home/ftp:/bin/sh\n" })
+addFile ({ name = "/bin/wget", exec="f_wget", acl="777" })
+addFile ({ name = "/var/log/ftpd.log", on_delete="f_morbid_rm_logs", acl="666" })
+addDir ({ name = "/usr/db/" })
+addFile ({ name = "/usr/db/data", content = garbage(2318).."\n", exec = "f_dbdata", acl="777" })
+addFile ({ name = "/usr/db/unicode", exec = "f_unicode", acl="777" })
+addDir ({ name = "/usr/db/src" })
+addFile ({ name = "/usr/db/src/code.c", content = "/* database engine */\n\nint main(int argc, char **argv)\n{\n  char buf[10];\n  strcpy(buf,argv[1]);\n}\nvoid the_shell()\n{\n  system('bin/bash');\n}\n" })
+addFile ({ name = "/usr/db/src/dump", content = "assembly code for function main:\nDump of   <main>:\n0x8048500 <main>           push   %ebp\n0x8048501 <main+1>         mov    %esp, %ebp\n0x8048503 <main+3>         sub    $0x18, %esp\n0x8048506 <main+6>         cmpl   $0x1, 0x8 (%ebp)\n0x804850a <main+10>        jg     0x804851c <main+28>\n0x804850c <main+12>        add    $0xfffffff4, %esp\n0x804850f <main+15>        push   $0x0\n0x8048511 <main+17>        call   0x80483e4 <exit>\n0x8048516 <main+22>        add    $0x10, %esp\n0x8048519 <main+25>        lea    0x0 (%esi), %esi\n0x804851c <main+28>        add    $0xfffffff8, %esp\n0x804851f <main+31>        mov    0xc (%ebp), %eax\n0x8048522 <main+34>        add    $0x4, %eax\n0x8048525 <main+37>        mov    %eax, %edx\n0x8048527 <main+39>        push   %edx\n0x8048528 <main+40>        lea    $0xfffffff4 (%ebp), %eax\n0x804852b <main+43>        push   %eax\n0x804852c <main+44>        call   0x80483b4 <strcpy>\n0x8048531 <main+49>        add    $0x10, %esp\n0x8048534 <main+52>        leave \n0x8048535 <main+53>        ret\n0x8048536 <main+54>        mov    %esi, %esi\nEnd of assembly dump.\n" })
+addFile ({ name = "/usr/db/src/dump2", content = "assembly code for function the_shell:\nDump of <the_shell>:\n0x8048538 <the_shell>        push   %ebp\n0x8048539 <the_shell+1>      mov    %esp, %ebp\n0x804853b <the_shell+3>      sub    $0x8, %esp\n0x804853e <the_shell+6>      add    $0xfffffff4, %esp\n0x8048541 <the_shell+9>      push   $0x8048587\n0x8048546 <the_shell+14>     call   0x80483c4 <system>\n0x804854b <the_shell+19>     add    $0x10, %esp\n0x804854e <the_shell+22>     leave\n0x804854f <the_shell+23>     ret\nEnd of assembly dump.\n" })
+
+mail ({ to="root", from="Dead_Beat", subject="Destiny...", body="Ok, cowboy. Final test. There's a website at http://neongate/page?login and we\nwant you to hack it. If you can find some sort of an LFI, you'll have it made.\nTick tock, destiny is waiting..." })
+
+-- load neongate VM
+newVM("neongate")
+setProperty ({ ip = "68.45.10.123", on_root = "ending"  })
+addService ({ port = "23", name = "telnetd", exec = "", start="true", poll="Login:" })
+addService ({ port = "80", name = "httpd", exec = "", start="true", poll="<html><body><h1>It works!</h1></body></html>" })
+addUser ( "root", "baseball" )
+
+-- load kali VM
+newVM("honeypot")
+setProperty ({ ip = "73.45.101.8", netd = "kali-net", on_logout = "f_check_honeypot_logs", uname = "Linux kali 3.12-kali1-686-pae" })
+addService ({ port = "21", name = "superftpd", exec = "", start="true", poll="Super FTP Server Ready" })
+addService ({ port = "23", name = "telnetd", exec = "", start="true", poll="Login:" })
+addUser ( "root", "4hjWm-q6#v" )
+addUser ( "ftp", "password" )
+addFile ({ name = "/var/log/ftpd.log", on_delete="f_honeypot_rm_logs", acl="700", owner = "root", content = "WARNING! Intrusion detected: Source [92.13.211.4]" })
+addFile ({ name = "/etc/passwd", content = "root:".. hash("4hjWm-q6#v") ..":0:0:Charlie Root:/root:/bin/sh\nftp:".. hash("password") ..":100:100:ftp:/home/ftp:/bin/sh\n" })
+mail ({ to="root", from="a friend", subject="GET OUT!!", body="It's a trap! This box is a honeypot! They're probably monitoring it right now!\nCover your tracks and get the hell out of there!!!\n\n~A friend\n" })
+
+
+-- functions
+function f_get_brute()
+  has_bruteforcer = true
+end
+
+function f_get_wwwlook()
+  if (morbid_logs == true) then
+    print ""
+    print ""
+    print "--------------------------------------------------------------------------------"
+    print ""
+    print ""
+    print "As it turns out, a zealous jr. administrator happened to discover your logins"
+    print "in the ftp log files. Your remote session ends, and you suddenly hear a knock"
+    print "at the door."
+    print ""
+    print "Better luck next time..."
+    print ""
+    pause()
+    quit()
+  end
+  has_wwwlook = true
+end
+
+function f_wwwlook(arg)
+  if (#arg < 2) then
+    print "wget: missing URL"
+    print "usage: wget [URL]"
+    return
+  end
+  url = arg[2]
+  print ("Fetching " .. url .. "...")
+  if (string.sub(url,0,7) ~= "http://") then
+    print ("Sorry, but this program can only work with http:// resources.")
+    return
+  end
+  host, uri = string.match(url, "http://([%w-.]+)(.*)")
+  if(host == "neongate" or host == "68.45.10.123") then
+    if(uri == "" or uri == "/" or uri == "/index.htm") then
+      print ("<html><body><h1>It works!</h1></body></html>")
+    elseif(uri == "/page" or string.match(uri, "/page??.*")) then
+      ifile = string.match(uri, "/page??(.*)")
+      -- Let's work around Lua's lack of pattern matching groups
+      tmp = string.gsub(ifile, "(%.%./)", "!")
+      tmp = string.gsub(tmp, "!!+", "/")
+      -- if the condensed verion of the path is /etc/passwd, just assign it to ifile
+      if (tmp == "/etc/passwd") then
+        ifile = tmp
+      end
+      -- now we can get back to comparing strings
+      if (ifile == "/etc/passwd") then
+        print ("<html><body><h1>Welcome</h1>root:" .. hash("baseball") .. ":0:0:root:/root:/bin/sh\n</body></html>")
+      elseif (ifile == "login") then
+        print ("<html><body><h1>Welcome</h1><p>Please Sign in with basic auth to contiue.</p></body></html>")
+      elseif (ifile == "" or ifile == "home") then
+        print ("<html><body><h1>Welcome</h1><h2>We're Sorry!</h2><p>Our site is under renovation, but you can still visit http://neongate/page?login to access your account.</p></body></html>")
+      else
+        print ("<html><body><h1>Welcome</h1></body></html>")
+      end
+    else
+      print ("<html><body><h1>404</h1><p>File not found!</p></body></html>")
+    end
+    return
+  end
+  print ("Unable to connect to host: " .. host)
+end
+
+function f_ipsniff()
+  print "IPSniff - Network Packet Analyzer"
+  print "Scanning network interfaces for plaintext passwords..."
+  sleep(5)
+  print "Password detected on the network"
+  print "  User: root"
+  print "  Password: cs6Xk-11b"
+end
+
+function f_wget(arg)
+  if (#arg < 2) then
+    print "wget: missing URL"
+    print "usage: wget [URL]"
+    return
+  end
+  host = arg[2]
+  print ("Connecting to " .. host .. "... connected.")
+  if (host == "http://area6.net/tools/" or host == "http://area6.net/tools") then
+    path = cwd()
+    print ("Saving files to " .. path .. "...")
+    echo (" portscan: ")
+    for i = 1,5 do
+      echo (".")
+      sleep(1)
+    end
+    echo ("\n")
+    addFile ({ name = path.."portscan", content = garbage(1623).."\n", exec="p_portscan", acl="777" })
+    echo (" ftpexploit: ")
+    for i = 1,7 do
+      echo (".")
+      sleep(1)
+    end
+    echo ("\n")
+    addFile ({ name = path.."ftpexploit", content = garbage(1644).."\n", exec="f_ftpexploit", acl="777" })
+    if (has_bruteforcer) then
+      echo (" bruteforcer: ")
+      for i = 1,4 do
+        echo (".")
+        sleep(1)
+      end
+      echo ("\n")
+      addFile ({ name = path.."bruteforcer", content = garbage(944).."\n", exec="f_bruteforcer", acl="777" })
+    end
+    if (has_wwwlook) then
+      echo (" wwwlook: ")
+      for i = 1,3 do
+        echo (".")
+        sleep(1)
+      end
+      echo ("\n")
+      addFile ({ name = path.."wwwlook", content = garbage(787), exec="f_wwwlook", acl="777" })
+    end
+    print ("done.")
+    return
+  end
+  print ("ERROR 404: Not Found.")
+end
+
+function f_area6_root()
+  print "You have new mail."
+  mail ({ to="root@area6", from="Harper", subject="Congrats n00b", body="A mutual friend wants me to give you some tools. He says you are going to need\nthem. Honestly, you're going to need a lot more than that to survive.\nGet your tools by running: wget http://area6.net/tools/\n\nGood luck. Destiny's a bitch.\n" })
+end
+
+function f_2factor_auth(user)
+  if (user ~= "root") then
+    return
+  end
+  echo ("Token: ")
+  token = input()
+  tok = timestamp()
+  for i=1,6 do tok = math.floor(tok / 2) end
+  tok = md5(math.floor(tok/1))
+  tok = string.sub(tok,0,6)
+  if (token ~= tok) then
+    print "Invalid token!"
+    logout()
+  end
+end
+
+function f_trinity_rm_logs()
+  trinity_logs = false
+end
+
+function f_zion_rm_logs()
+  zion_logs = false
+end
+
+function f_solara_rm_logs()
+  solara_logs = false
+end
+
+function f_morbid_rm_logs()
+  morbid_logs = false
+end
+
+function f_honeypot_rm_logs()
+  honeypot_logs = false
+end
+
+function f_ftpexploit(arg)
+  if (#arg ~= 2) then
+  	print ("usage: ftpexploit [hostname|address]")
+  	return
+  end
+  print ("G6 FTPD Remote Exploit by DIGICRIME")
+  print ("Sending Shellcode")
+  print ("/.f/.f/.f/.f/.f/.f/.f/.f/.f/.f/.f/.f/.f/.f/.f/.f/.f/.f/.f/.f/.f/.f")
+  print ("/.f/.f/.f/.f/.f/.f/.f/.f/.f/.f/.f/.f/.f/.f/.f/.f/.f/.f/.f/.f/.f/.f")
+  print ("/.f/.f/.f/.f/.f/.f/.f/.f/.f/bin/sh")
+  if (serviceRunning(arg[2], "ftpd")) then
+    print ("Shell Created")
+    login ({ host = arg[2], user = "root" })
+    print ("You are now logged in to "..arg[2])
+  else
+    print ("Host is not vulnerable")
+  end
+end
+
+function f_rm_welcome_msg()
+  welcome_msg = false;
+end
+
+function f_welcome()
+  page = 20
+  n = 0
+  if (welcome_msg == true) then
+    for i,line in ipairs(readfile("/etc/welcome.msg")) do
+      n = n + 1
+      if (n > page) then
+        print "[more]"
+        pause()
+        n = 1
+      end
+      print(line)
+    end
+  else
+    print "Error: Unable to find welcome.msg"
+    print "Dropping back to user shell..."
+    print "(segmentation fault: 11)"
+    login ({ host = "zion", user = "root" })
+  end
+end
+
+function f_check_zion_logs()
+  if (zion_logs == true) then
+    print ""
+    print ""
+    print "--------------------------------------------------------------------------------"
+    print ""
+    print ""
+    print "As it turns out, a zealous jr. administrator happened to discover your logins"
+    print "in the ftp log files. Your remote session ends, and you suddenly hear a knock"
+    print "at the door."
+    print ""
+    print "Better luck next time..."
+    print ""
+    pause()
+    quit()
+  end
+end
+
+function f_check_solara_logs()
+  if (solara_logs == true) then
+    print ""
+    print ""
+    print "--------------------------------------------------------------------------------"
+    print ""
+    print ""
+    print "Sadly, you never remembered to remove the ftp log files. Now they have been used"
+    print "to track you down. The authorities gave you little opportunity to prepare, and"
+    print "now the game is over."
+    print ""
+    print "Better luck next time..."
+    print ""
+    pause()
+    quit()
+  end
+end
+
+function f_check_honeypot_logs(user)
+  if (user == "root" and honeypot_logs == true) then
+    print ""
+    print ""
+    print "--------------------------------------------------------------------------------"
+    print ""
+    print ""
+    print "Unfortunately for you, the logs were collected on this honeypot, exposing your"
+    print "operation. The authorities were swift in tracking you down and pulling the plug."
+    print "I hope you like orange, because it looks like you'll be wearing it for a while."
+    print ""
+    print "Better luck next time..."
+    print ""
+    pause()
+    quit()
+  end
+end
+
+function f_dbdata()
+  print "All data is entered through the command line..."
+end
+
+function f_unicode(arg)
+  if (#arg < 2) then
+    print "Unicode Data Sender by jimmyj"
+    print ""
+    print "Please enter the desired hex value into the command line"
+    print "and it will be sent to /usr/db/data"
+    print ""
+    print "Example: unicode \\x90\\x50\\x43"
+    print ""
+  else
+    print "Sending data..."
+    if (arg[2]:match("\\x%d%d\\x%d%d\\x%d%d\\x%d%d\\x%d%d\\x%d%d\\x%d%d\\x%d%d\\x%d%d\\x%d%d\\x%d%d\\x%d%d\\x%d%d\\x%d%d\\x%d%d\\x%d%d\\x38\\x85\\x04\\x08")) then
+      login ({ host = "morbid", user = "root" })
+      print ("You have new mail.")
+    end
+  end
+end
+
+function f_bruteforcer(arg)
+  if (#arg < 2) then
+    print ("usage: bruteforcer [hostname|address]")
+    return
+  end
+  host = arg[2]
+  f_check_trinity_logs()
+  print "Simple Bruteforce Login Cracker by Dead_Beat"
+  print ""
+  echo ("Username to bruteforce: ")
+  user = input()
+  print "Creating multiple connections."
+  print "Attacking..."
+  sleep(3)
+  if (user == "ftp") then
+    if (host == "zion" or host == "116.233.142.168") then
+      print "Password Cracked"
+      print "Password for user 'ftp' is 'janitor'"
+    elseif (host == "morbid" or host == "44.236.143.86") then
+      print "Password Cracked"
+      print "Password for user 'ftp' is 'monkey'"
+    elseif (host == "solara" or host == "118.101.16.199") then
+      print "Password Cracked"
+      print "Password for user 'ftp' is 'cowboy'"
+    elseif (host == "honeypot" or host == "73.45.101.8") then
+      print "Password Cracked"
+      print "Password for user 'ftp' is 'password'"
+    else
+      print "No passwords found."
+    end
+  end
+end
+
+function f_check_trinity_logs()
+  if (hostname() ~= "trinity") then
+    return
+  end
+  if (trinity_logs == true) then
+    print ""
+    print ""
+    print "--------------------------------------------------------------------------------"
+    print ""
+    print ""
+    print "Unfortunately, the authorities were able to pick up your trail from the login"
+    print "info in the logs on trinity. You have now been apprehended, and your career cut"
+    print "violently short by a prison sentence."
+    print ""
+    print "Better luck next time..."
+    print ""
+    pause()
+    quit()
+  end
+end
+
+function intro()
+  print ""
+  print ""
+  print "Message 1:"
+  print "To: a hacker"
+  print "From: a friend"
+  print "Subject: a little job"
+  print ""
+  print "I've been watching you for some time. Nice work, I must say. Unfortunatley for"
+  print "you, I have a pretty hefty file on your exploits that the authorities would"
+  print "LOVE to get their hands on."
+  print ""
+  print "Here's my offer: You work for me, and they'll never have to see it."
+  print ""
+  print "If you accept my offer, log in to the machine at 103.12.49.111 with the username"
+  print "'m101' and the password 'area6'. You have 24 hours to comply."
+  print ""
+  print "Your fate has been decided..."
+  print ""
+  pause()
+  print "--------------------------------------------------------------------------------"
+  print ""
+  print ""
+  print "VNX Kernel 0.1: Tue Dec 21 14:11 EST 2010"
+end
+
+function ending()
+  print ""
+  print ""
+  print "--------------------------------------------------------------------------------"
+  print ""
+  print ""
+  print "Message 5:"
+  print "To: a hacker"
+  print "From: Opticon"
+  print "Subject: Welcome to the family"
+  print ""
+  print "Well done on your latest hack. Don't get full of yourself though; your next"
+  print "challenges will be of much greater difficulty."
+  print ""
+  print "The boss decided to give you a new name: 'hi-jack'. Get used to this"
+  print "handle (you might have it for a long time)."
+  print ""
+  print "Someone will contact you once it's time for the next mission."
+  print "Get some rest. You're going to need it..."
+  print ""
+  pause()
+  quit()
+end
