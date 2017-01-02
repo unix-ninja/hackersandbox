@@ -73,7 +73,6 @@ pt::ptree VM::serialize()
   ostringstream output;
   pt::ptree json;
   string data;
-  //data += "vm:" + getHostname() + "\n";
   json.put("hostname", getHostname());
   // save filesystem
   vector<File>::iterator f;
@@ -90,41 +89,24 @@ pt::ptree VM::serialize()
     file.put("acl", f->getAcl());
     file.put("owner", f->getOwner());
     file.put("exec", f->getExec());
-    //if (!f->getOnDelete().empty()) data += ",on_delete=" + f->getOnDelete();
     if (!f->getOnDelete().empty())
     {
       file.put("on_delete", f->getOnDelete());
     }
-    //data += ",content=" + ab64_encode(f->getContent().c_str(), f->getContent().length()) + "\n";
     file.put("content", f->getContent());
     json.push_back(std::make_pair("file", file));
   }
   // save user chain
-  {
-    //data.append("chain:");
-    data = "";
-    vector<User*>::iterator it;
-    for(it=user_chain.begin(); it!=user_chain.end(); it++)
-    {
-      if(it!=user_chain.begin()) data.append(",");
-      data.append((*it)->getName());
-    }
-    //data.append("\n");
-    json.put("chain", data);
-  }
+  json.put("chain", printUserChain());
   // save server properties
-  //data += "p:cwd=" + getCwd() + "\n";
   json.put("cwd", getCwd());
   num << broken_counter;
-  //data += "p:bc=" + num.str() + "\n";
   json.put("bc", num.str());
   if(has_root)
   {
-    //data += "p:has_root=true\n";
     json.put("has_root", true);
   } else {
     json.put("has_root", false);
-    //data += "p:has_root=false\n";
   }
   // save net domains
   if(net_domains.size())
@@ -654,6 +636,18 @@ bool VM::getNetRoute(string ip)
     }
   }
   return false;
+}
+
+string VM::printUserChain()
+{
+  string data = "";
+  vector<User*>::iterator it;
+  for(it=user_chain.begin(); it!=user_chain.end(); it++)
+  {
+    if(it!=user_chain.begin()) data.append(",");
+    data.append((*it)->getName());
+  }
+  return data;
 }
 
 void VM::reset()

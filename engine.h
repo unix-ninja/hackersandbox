@@ -195,6 +195,7 @@ public:
   void listNetDomains();
   bool inNetDomain(int);
   bool getNetRoute(string ip);
+  string printUserChain();
   void reset();
   int FSgetFree();
   void FSsetMax(int);
