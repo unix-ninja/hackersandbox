@@ -307,13 +307,13 @@ bool VM::addUser (User u)
   {
     return false;
   }
-  // if the user already exists, just return true
+  // if the user already exists, replace it (good for overriding root)
   for (int i=0; i<users.size(); i++)
   {
     if (users[i].getName() == u.getName())
     {
-      //users[i] = u;
-      return true;
+      users[i] = u;
+      break;
     }
     // we can add our user now, but we need to make sure to preserve
     // the chain
