@@ -307,15 +307,26 @@ bool VM::addUser (User u)
   {
     return false;
   }
+  // if the user already exists, just return true
   for (int i=0; i<users.size(); i++)
   {
     if (users[i].getName() == u.getName())
     {
-      users[i] = u;
-      break;
-    } else {
-      users.push_back(u);
-      break;
+      //users[i] = u;
+      return true;
+    }
+    // we can add our user now, but we need to make sure to preserve
+    // the chain
+    string str_chain = printUserChain();
+    user_chain.clear();
+    // now we can add the new user (this will reallocate memory)
+    users.push_back(u);
+    // finally, reset the pointers to the new memory locations
+    vector<string> store;
+    explode(str_chain, ",", store);
+    for(int i=0; i<store.size(); i++)
+    {
+      user_chain.push_back(getUser(store[i]));
     }
   }
   return true;
