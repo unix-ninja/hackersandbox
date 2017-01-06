@@ -1783,16 +1783,64 @@ int addUser(lua_State *lua)
 
   // number of input arguments
   int argc = lua_gettop(lua);
-  if (argc != 2) {
+  if (argc < 1 || 2 < argc)
+  {
     cout << "Error! Invalid call to addUser." << endl;
     exit (ERR_BAD_SET);
   }
 
-  password = lua_tostring(lua, lua_gettop(lua));
-  lua_pop(lua, 1);
-  user = lua_tostring(lua, lua_gettop(lua));
-  lua_pop(lua, 1);
-  if (!vPC.back().addUser(User(user, password)))
+  VM* avm; // active VM
+  avm = NULL;
+
+  if (argc == 1)
+  {
+    int idx = lua_gettop(lua);
+    if (!lua_istable(lua, idx))
+    {
+      cout << "Error! Invalid call to addUser." << endl;
+      exit (ERR_BAD_SET);
+    }
+    
+    lua_pushnil(lua); // first key
+    while (lua_next(lua, -2) != 0 )
+    {
+      string key = lua_tostring(lua, -2);
+      string value = lua_tostring(lua, -1);
+
+      if (key == "host")
+      {
+	avm = getVM(value);
+      }
+      if (key == "user")
+      {
+	user = value;
+      }
+      if (key == "password")
+      {
+	password = value;
+      }
+
+      lua_pop(lua, 1);
+    }
+  } else {
+    password = lua_tostring(lua, lua_gettop(lua));
+    lua_pop(lua, 1);
+    user = lua_tostring(lua, lua_gettop(lua));
+    lua_pop(lua, 1);
+  }
+
+  if (user.empty())
+  {
+    cout << "Error! Invalid call to addUser." << endl;
+    exit (ERR_BAD_SET);
+  }
+
+  if (!avm)
+  {
+    avm = &(vPC.back());
+  }
+
+  if (!avm->addUser(User(user, password)))
   {
     cout << "Fatal error adding user." << endl;
     exit (ERR_BAD_SET);
