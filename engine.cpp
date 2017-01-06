@@ -1526,7 +1526,7 @@ VM* createNewVM(string hostname)
   return &(vPC.back());
 }
 
-int addDir(string name, string acl = "", string owner = "")
+int addDir(string name, string acl = "", string owner = "", string host = "")
 {
   File f (File(name, T_FOLDER, "", ""));
 
@@ -1539,10 +1539,24 @@ int addDir(string name, string acl = "", string owner = "")
   {
     f.setOwner(owner);
   }
+  VM* avm = NULL;
+  if(!host.empty())
+  {
+    avm = getVM(host);
+  } else {
+    avm = &vPC.back();
+  }
 
-  if (!vPC.back().addFile(f))
+  if (!avm)
+  {
+    cout << "Unable to find host '" << host << "'" << endl;
+    exit (ERR_BAD_SET);
+  }
+
+  if (!avm->addFile(f))
   {
     cout << "Unable to add '" << name << "'" << endl;
+    return (ERR_BAD_SET);
   }
   return E_OK;
 }
@@ -1847,7 +1861,7 @@ int addUser(lua_State *lua)
   }
   if (user != "root")
   {
-    addDir("/home/"+user+"/", "770", user);
+    addDir("/home/"+user+"/", "770", user, avm->getHostname());
   }
   return E_OK;
 }
