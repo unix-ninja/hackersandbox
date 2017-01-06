@@ -772,7 +772,7 @@ int cmd_quit()
 
 int cmd_help()
 {
-  cout << "Currently supported built-in commands:\n  cat\n  cd\n  clear\n  date\n  echo\n  exit\n  help\n  hint\n  hostname\n  ifconfig\n  load\n  ls\n  lspci\n  mail\n  ping\n  pwd\n  quit\n  rm\n  save\n  su\n  telnet\n  uname\n  whoami" << endl;
+  cout << "Currently supported built-in commands:\n  cat\n  cd\n  clear\n  date\n  echo\n  exit\n  help\n  hint\n  hostname\n  id\n  ifconfig\n  load\n  ls\n  lspci\n  mail\n  ping\n  pwd\n  quit\n  rm\n  save\n  su\n  telnet\n  uname\n  whoami" << endl;
   return E_OK;
 }
 
@@ -849,6 +849,29 @@ int cmd_hostname()
 {
   cout << shell.back()->getHostname() << endl;
   return E_OK;
+}
+
+int cmd_id(vector<string> args)
+{
+  string username;
+  if (args.size() < 2)
+  {
+    username = shell.back()->getUsername();
+  } else {
+    username = args[1];
+  }
+
+  int cEC = E_OK;
+  User* usr;
+  usr = shell.back()->getUser(username);
+  if (!usr)
+  {
+    cout << "id: " << username <<": no such user" << endl;
+    return 1;
+  } else {
+    cout << "uid=" << username << endl;
+  }
+  return cEC;
 }
 
 int cmd_ifconfig()
@@ -1393,6 +1416,10 @@ int tcon::trigger(string cmd)
     else if (cmd == "hostname")
     {
       cEC = cmd_hostname();
+    }
+    else if (cmd == "id")
+    {
+      cEC = cmd_id(args);
     }
     else if (cmd == "ifconfig")
     {
