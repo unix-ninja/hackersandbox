@@ -1430,6 +1430,12 @@ int tcon::trigger(string cmd)
       lua_restore(args);
       cEC = E_OK;
     }
+    else if (cmd == "ll")
+    {
+      args[0] = "ls";
+      args.insert(args.begin()+1, "-l");
+      cEC = cmd_ls(args);
+    }
     else if (cmd == "ls")
     {
       cEC = cmd_ls(args);
@@ -2630,7 +2636,7 @@ int lua_sleep (lua_State *lua)
     cout << "Error! Invalid call to sleep." << endl;
     exit (ERR_BAD_SET);
   }
-  boost::this_thread::sleep(boost::posix_time::seconds(lua_tonumber(lua, -1)));
+  boost::this_thread::sleep(boost::posix_time::seconds(static_cast<long>(lua_tonumber(lua, -1))));
   lua_pop(lua, 1);
   return E_OK;
 }
